@@ -1,5 +1,5 @@
-[![Build](https://github.com/applibgroup/MaterialCalendar/actions/workflows/main.yml/badge.svg)](https://github.com/applibgroup/MaterialCalendar/actions/workflows/main.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=applibgroup_MaterialCalendar&metric=alert_status)](https://sonarcloud.io/dashboard?id=applibgroup_MaterialCalendar)
+[![Build](https://github.com/applibgroup/PinchToZoom/actions/workflows/main.yml/badge.svg)](https://github.com/applibgroup/PinchToZoom/actions/workflows/main.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=applibgroup_PinchToZoom&metric=alert_status)](https://sonarcloud.io/dashboard?id=applibgroup_PinchToZoom)
 
 # PinchToZoom
 OHOS's ImageView/PhotoView pinch-to-zoom made easy
