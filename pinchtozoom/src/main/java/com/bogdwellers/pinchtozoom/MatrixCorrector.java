@@ -49,10 +49,10 @@ public abstract class MatrixCorrector {
 		switch(vector) {
 			case MatrixEx.MTRANS_X:
 			case MatrixEx.MTRANS_Y:
-				return correctAbsolute(vector, v + x) - v;
+				return correctAbsolute( v + x) - v;
 			case MatrixEx.MSCALE_X:
 			case MatrixEx.MSCALE_Y:
-				return correctAbsolute(vector, v * x) / v;
+				return correctAbsolute( v * x) / v;
 			default:
 				throw new IllegalArgumentException("Vector not supported");
 		}
@@ -60,7 +60,7 @@ public abstract class MatrixCorrector {
 
 	/**
 	 * * <p>Returns the corrected value of the given absolute vector.</p>
-	 * @param vector
+	 *
 	 * @param x
      * @return
      */
@@ -70,6 +70,7 @@ public abstract class MatrixCorrector {
 
 	/**
 	 * * <p>Returns the matrix.</p>
+	 *
 	 * @return
 	 */
 	public Matrix getMatrix() {
@@ -78,6 +79,7 @@ public abstract class MatrixCorrector {
 
 	/**
 	 * * * <p>Sets the matrix.</p>
+	 *
 	 * @param matrix
 	 */
 	public void setMatrix(Matrix matrix) {
@@ -86,6 +88,7 @@ public abstract class MatrixCorrector {
 
 	/**
 	 * * * <p>Returns the matrix values.</p>
+	 *
 	 * @return
 	 */
 	protected float[] getValues() {
