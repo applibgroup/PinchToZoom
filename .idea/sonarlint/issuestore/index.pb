@@ -11,9 +11,3 @@ J
 entry/src/main/config.json,1\0\10f965cf51fe14a5ef0ca2ebefb1bd7e4607eeb2
 P
  pinchtozoom/src/main/config.json,6\b\6b7eb3bbadbf54b19dcfd4f84408cc1113d447cf
-B
-entry/build.gradle,a\d\ad38b2dea33752cac233aa09d7dfbe582e9dded6
-H
-pinchtozoom/build.gradle,7\4\7428c32f57aeda4522d27a98e0e177e5de989e55
-<
-build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35

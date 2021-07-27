@@ -17,6 +17,6 @@ ohos {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':library')
+    implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
     testImplementation 'junit:junit:4.13'
 }
