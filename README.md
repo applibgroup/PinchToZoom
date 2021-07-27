@@ -12,7 +12,7 @@ implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
 ```
 
 ## Overview
-PinchToZoom for Android is a simple yet feature complete library for adding pinch-to-zoom functionality to an *ImageView*. It has sleek easing animations that make it stand out in quality and ease of use.
+PinchToZoom for HarmonyOs is a simple yet feature complete library for adding pinch-to-zoom functionality to an *ImageView*. It has sleek easing animations that make it stand out in quality and ease of use.
 
 ### Features
 * Pinch-to-zoom
