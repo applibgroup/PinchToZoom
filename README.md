@@ -1,3 +1,9 @@
+[![Maven Central](https://img.shields.io/badge/Maven%20Central-0.1-blue.svg)](https://mvnrepository.com/artifact/com.bogdwellers/pinchtozoom/0.1)
+[![Android Arsenal](https://img.shields.io/badge/Android_Arsenal-PinchToZoom-brightgreen.svg)](https://android-arsenal.com/details/1/5575)
+
+# PinchToZoom
+Android's ImageView pinch-to-zoom made easy
+
 ## Sample app
 <a href='https://play.google.com/store/apps/details?id=com.bogdwellers.pinchtozoom&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="223" /></a>
 
