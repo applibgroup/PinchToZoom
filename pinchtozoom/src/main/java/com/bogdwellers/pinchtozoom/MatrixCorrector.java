@@ -49,47 +49,47 @@ public abstract class MatrixCorrector {
 		switch(vector) {
 			case MatrixEx.MTRANS_X:
 			case MatrixEx.MTRANS_Y:
-				return correctAbsolute( v + x) - v;
+				return correctAbsolute(v + x) - v;
 			case MatrixEx.MSCALE_X:
 			case MatrixEx.MSCALE_Y:
-				return correctAbsolute( v * x) / v;
+				return correctAbsolute(v * x) / v;
 			default:
 				throw new IllegalArgumentException("Vector not supported");
 		}
 	}
 
 	/**
-	 * * <p>Returns the corrected value of the given absolute vector.</p>
+	 * Returns the corrected value of the given absolute vector.
 	 *
-	 * @param x
-     * @return
+	 * @param x - x.
+     * @return - returns.
      */
 	public float correctAbsolute( float x) {
 		return x;
 	}
 
 	/**
-	 * * <p>Returns the matrix.</p>
+	 * Returns the matrix.
 	 *
-	 * @return
+	 * @return - returns.
 	 */
 	public Matrix getMatrix() {
 		return matrix;
 	}
 
 	/**
-	 * * * <p>Sets the matrix.</p>
+	 * Sets the matrix.
 	 *
-	 * @param matrix
+	 * @param matrix - matrix.
 	 */
 	public void setMatrix(Matrix matrix) {
 		this.matrix = matrix;
 	}
 
 	/**
-	 * * * <p>Returns the matrix values.</p>
+	 * Returns the matrix values.
 	 *
-	 * @return
+	 * @return - returns.
 	 */
 	protected float[] getValues() {
 		matrix.getElements(values);
