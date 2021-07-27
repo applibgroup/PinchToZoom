@@ -1,10 +1,11 @@
 package com.bogdwellers.pinchtozoom.animation;
 
-import android.animation.ValueAnimator;
-import android.graphics.Matrix;
-import android.widget.ImageView;
 
 import com.bogdwellers.pinchtozoom.ImageMatrixCorrector;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import com.github.chrisbanes.photoview.PhotoView;
+import ohos.agp.animation.AnimatorValue;
+import ohos.agp.utils.Matrix;
 
 /**
  * Created by Martin on 12-10-2016.
@@ -12,7 +13,6 @@ import com.bogdwellers.pinchtozoom.ImageMatrixCorrector;
 
 public class ScaleAnimatorHandler extends AbsCorrectorAnimatorHandler {
 
-    private static final String TAG = ScaleAnimatorHandler.class.getSimpleName();
 
     private float px;
     private float py;
@@ -28,19 +28,19 @@ public class ScaleAnimatorHandler extends AbsCorrectorAnimatorHandler {
         this.px = px;
         this.py = py;
         this.translate = true;
-   }
+    }
 
     @Override
-    public void onAnimationUpdate(ValueAnimator animation) {
+    public void onUpdate(AnimatorValue animation, float v) {
         ImageMatrixCorrector corrector = getCorrector();
-        ImageView imageView = corrector.getImageView();
-        if(imageView.getDrawable() != null) {
-            Matrix matrix = imageView.getImageMatrix();
+        PhotoView photoView = corrector.getImageView();
+        if (photoView.getImageElement() != null) {
+            Matrix matrix = photoView.getImageMatrix();
             float[] values = getValues();
-            matrix.getValues(values);
+            matrix.getElements(values);
 
-            float sx = (float) animation.getAnimatedValue();
-            sx = corrector.correctAbsolute(Matrix.MSCALE_X, sx) / values[Matrix.MSCALE_X];
+            float sx = v;
+            sx = corrector.correctAbsolute(MatrixEx.MSCALE_X, sx) / values[MatrixEx.MSCALE_X];
 
             if (translate) {
                 matrix.postScale(sx, sx, px, py);
@@ -48,7 +48,13 @@ public class ScaleAnimatorHandler extends AbsCorrectorAnimatorHandler {
                 matrix.postScale(sx, sx);
             }
             corrector.performAbsoluteCorrections();
-            imageView.invalidate();
+            photoView.setImageMatrix(matrix);
+            photoView.invalidate();
         }
+
     }
+
+
+
+
 }

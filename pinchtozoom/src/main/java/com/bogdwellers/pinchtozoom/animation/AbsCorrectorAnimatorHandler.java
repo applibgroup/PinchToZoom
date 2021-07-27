@@ -1,19 +1,19 @@
 package com.bogdwellers.pinchtozoom.animation;
 
-import android.animation.ValueAnimator;
 
 import com.bogdwellers.pinchtozoom.ImageMatrixCorrector;
+import ohos.agp.animation.AnimatorValue;
 
 /**
  * Created by Martin on 13-10-2016.
  */
 
-public abstract class AbsCorrectorAnimatorHandler implements ValueAnimator.AnimatorUpdateListener {
+public abstract class AbsCorrectorAnimatorHandler implements AnimatorValue.ValueUpdateListener {
 
     private ImageMatrixCorrector corrector;
     private float[] values;
 
-    public AbsCorrectorAnimatorHandler(ImageMatrixCorrector corrector) {
+    protected AbsCorrectorAnimatorHandler(ImageMatrixCorrector corrector) {
         this.corrector = corrector;
         this.values = new float[9];
     }
