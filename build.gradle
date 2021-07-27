@@ -36,9 +36,9 @@ allprojects {
     }
     task checkstyle(type: Checkstyle) {
         showViolations = true
-        configFile file("huawei/config/checkstyle.xml")
+        configFile file("config/checkstyle.xml")
         source 'entry/src/main/java'
-        source 'support/src/main/java'
+        source 'pinchtozoom/src/main/java'
         include '**/*.java'
         // empty classpath
         classpath = files()
@@ -49,7 +49,7 @@ checkstyle {
 }
 sonarqube {
     properties {
-        property "sonar.projectKey", "applibgroup_pinchtozoom"
+        property "sonar.projectKey", "applibgroup_PinchToZoom"
         property "sonar.organization", "applibgroup"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.sources", "entry,pinchtozoom"
