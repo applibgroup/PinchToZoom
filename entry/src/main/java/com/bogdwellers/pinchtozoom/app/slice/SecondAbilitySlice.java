@@ -43,15 +43,10 @@ public class SecondAbilitySlice extends AbilitySlice {
         setUIContent(ResourceTable.Layout_ability_main);
 
         List<Integer> drawables = new ArrayList<>();
-        try {
-            addDefaultImages(drawables);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NotExistException e) {
-            e.printStackTrace();
-        } catch (WrongTypeException e) {
-            e.printStackTrace();
-        }
+
+        addDefaultImages(drawables);
+
+
 
         imageViewPagerAdapter = new ImageViewPagerAdapter(drawables);
 
@@ -79,19 +74,11 @@ public class SecondAbilitySlice extends AbilitySlice {
      *
      * @param drawables
      */
-    private void addDefaultImages(List<Integer> drawables) throws IOException, NotExistException, WrongTypeException {
-
-
+    private void addDefaultImages(List<Integer> drawables)  {
 
         drawables.add(ResourceTable.Media_1_wtc61);
-
-
-
         drawables.add(ResourceTable.Media_2_love_couple_kissing);
-
-
-
-          drawables.add(ResourceTable.Media_3_forest_hills);
+        drawables.add(ResourceTable.Media_3_forest_hills);
 
     }
 
