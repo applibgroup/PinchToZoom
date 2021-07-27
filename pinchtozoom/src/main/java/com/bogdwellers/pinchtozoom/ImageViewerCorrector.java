@@ -1,7 +1,7 @@
 package com.bogdwellers.pinchtozoom;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import com.github.chrisbanes.photoview.PhotoView;
 
-import android.graphics.Matrix;
-import android.widget.ImageView;
 
 /**
  * <p>This <code>MatrixCorrector</code> implementation defines the default behavior for an image viewer.</p>
@@ -32,7 +32,7 @@ public class ImageViewerCorrector extends ImageMatrixCorrector {
 		this(null, 4f);
 	}
 	
-	public ImageViewerCorrector(ImageView imageView, float maxScale) {
+	public ImageViewerCorrector(PhotoView imageView, float maxScale) {
 		super();
 		if(imageView != null) setImageView(imageView);
 		this.maxScale = maxScale;
@@ -86,29 +86,28 @@ public class ImageViewerCorrector extends ImageMatrixCorrector {
 		updateScaledImageDimensions();
 
 		// Correct scale
-		//values[Matrix.MSCALE_X] = values[Matrix.MSCALE_Y] = correctAbsolute(Matrix.MSCALE_X, values[Matrix.MSCALE_X]);
 
 		// Correct the translations
 		float[] values = getValues();
-		values[Matrix.MTRANS_X] = correctAbsolute(Matrix.MTRANS_X, values[Matrix.MTRANS_X]);
-		values[Matrix.MTRANS_Y] = correctAbsolute(Matrix.MTRANS_Y, values[Matrix.MTRANS_Y]);
+		values[MatrixEx.MTRANS_X] = correctAbsolute(MatrixEx.MTRANS_X, values[MatrixEx.MTRANS_X]);
+		values[MatrixEx.MTRANS_Y] = correctAbsolute(MatrixEx.MTRANS_Y, values[MatrixEx.MTRANS_Y]);
 
 		// Update the matrix
-		getMatrix().setValues(values);
+		getMatrix().setElements(values);
 	}
 
 	@Override
 	public float correctAbsolute(int vector, float x) {
 		switch(vector) {
-			case Matrix.MTRANS_X:
+			case MatrixEx.MTRANS_X:
 				return correctTranslation(x, getImageView().getWidth(), getScaledImageWidth());
-			case Matrix.MTRANS_Y:
+			case MatrixEx.MTRANS_Y:
 				return correctTranslation(x, getImageView().getHeight(), getScaledImageHeight());
-			case Matrix.MSCALE_X:
-			case Matrix.MSCALE_Y:
+			case MatrixEx.MSCALE_X:
+			case MatrixEx.MSCALE_Y:
 				float innerFitScale = getInnerFitScale();
-				float maxScale = maxScaleRelative ? innerFitScale * this.maxScale : this.maxScale;
-				return Math.max(Math.min(x, maxScale), innerFitScale);
+				float maxScal = maxScaleRelative ? innerFitScale * this.maxScale : this.maxScale;
+				return Math.max(Math.min(x, maxScal), innerFitScale);
 			default:
 				throw new IllegalArgumentException("Vector not supported");
 		}

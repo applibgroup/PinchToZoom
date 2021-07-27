@@ -1,6 +1,7 @@
 package com.bogdwellers.pinchtozoom;
 
-import android.graphics.Matrix;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import ohos.agp.utils.Matrix;
 
 /**
  * <p>The <code>MatrixCorrector</code> enforces boundaries in the transformation of a <code>Matrix</code>.</p>
@@ -9,23 +10,18 @@ import android.graphics.Matrix;
  *
  */
 public abstract class MatrixCorrector {
-	
 	/*
 	 * Attributes
 	 */
-
 	private Matrix matrix;
 	private float[] values;
-
 	/*
 	 * Constructor(s)
 	 */
-	
-	public MatrixCorrector() {
+	protected MatrixCorrector() {
 		this(null);
 	}
-	
-	public MatrixCorrector(Matrix matrix) {
+	protected MatrixCorrector(Matrix matrix) {
 		this.matrix = matrix;
 		this.values = new float[9];
 	}
@@ -51,11 +47,11 @@ public abstract class MatrixCorrector {
 	public float correctRelative(int vector, float x) {
 		float v = getValues()[vector];
 		switch(vector) {
-			case Matrix.MTRANS_X:
-			case Matrix.MTRANS_Y:
+			case MatrixEx.MTRANS_X:
+			case MatrixEx.MTRANS_Y:
 				return correctAbsolute(vector, v + x) - v;
-			case Matrix.MSCALE_X:
-			case Matrix.MSCALE_Y:
+			case MatrixEx.MSCALE_X:
+			case MatrixEx.MSCALE_Y:
 				return correctAbsolute(vector, v * x) / v;
 			default:
 				throw new IllegalArgumentException("Vector not supported");
@@ -68,7 +64,7 @@ public abstract class MatrixCorrector {
 	 * @param x
      * @return
      */
-	public float correctAbsolute(int vector, float x) {
+	public float correctAbsolute( float x) {
 		return x;
 	}
 
@@ -93,7 +89,7 @@ public abstract class MatrixCorrector {
 	 * @return
 	 */
 	protected float[] getValues() {
-		matrix.getValues(values);
+		matrix.getElements(values);
 		return values;
 	}
 }

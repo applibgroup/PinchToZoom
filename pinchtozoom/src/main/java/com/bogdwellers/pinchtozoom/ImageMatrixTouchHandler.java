@@ -1,26 +1,29 @@
 package com.bogdwellers.pinchtozoom;
 
-import android.animation.PropertyValuesHolder;
-import android.animation.ValueAnimator;
-import android.content.Context;
-import android.graphics.Matrix;
-import android.graphics.PointF;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
+
 
 import com.bogdwellers.pinchtozoom.animation.FlingAnimatorHandler;
 import com.bogdwellers.pinchtozoom.animation.ScaleAnimatorHandler;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import com.bogdwellers.pinchtozoom.util.MyValueAnimator;
+import com.github.chrisbanes.photoview.LogUtil;
+import com.github.chrisbanes.photoview.PhotoView;
+
+import com.github.chrisbanes.photoview.gesture.GestureDetector;
+import ohos.agp.animation.Animator.CurveType;
+import ohos.agp.animation.AnimatorValue;
+import ohos.agp.components.Component;
+import ohos.agp.utils.Matrix;
+import ohos.agp.utils.Point;
+import ohos.app.Context;
+import ohos.multimodalinput.event.MmiPoint;
+import ohos.multimodalinput.event.TouchEvent;
+
 
 /**
  * <p>The <code>ImageMatrixTouchHandler</code> enables pinch-zoom, pinch-rotate and dragging on an <code>ImageView</code>.
  * Registering an instance of this class to an <code>ImageView</code> is the only thing you need to do.</p>
- * 
- * TODO Make event methods (for easy overriding)
+ *
  * 
  * @author Martin
  *
@@ -30,7 +33,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
     public static final int NONE = 0;
     public static final int DRAG = 1;
     public static final int PINCH = 2;
-    public static final int MORPH = 3; // TODO For three or more touch points
+	public static final int DOUBLETAP = 3;
+    public static final int MORPH = 4;
     private static final float MIN_PINCH_DIST_PIXELS = 10f;
 	public static final String TAG = ImageMatrixTouchHandler.class.getSimpleName();
     
@@ -41,8 +45,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	private ImageMatrixCorrector corrector;
     private Matrix savedMatrix;
     private int mode;
-    private PointF startMid;
-    private PointF mid;
+	private Point startMid;
+	private Point mid;
     private float startSpacing;
     private float startAngle;
 	private float pinchVelocity;
@@ -60,7 +64,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	private float zoomReleaseExaggeration;
     private boolean updateTouchState;
 	private GestureDetector gestureDetector;
-	private ValueAnimator valueAnimator;
+	private AnimatorValue valueAnimator;
 
     /*
      * Constructor(s)
@@ -68,14 +72,15 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
     
     public ImageMatrixTouchHandler(Context context) {
     	this(context, new ImageViewerCorrector());
+
     }
     
     public ImageMatrixTouchHandler(Context context, ImageMatrixCorrector corrector) {
 		this.corrector = corrector;
 		this.savedMatrix = new Matrix();
 		this.mode = NONE;
-		this.startMid = new PointF();
-		this.mid = new PointF();
+		this.startMid = new Point();
+		this.mid = new Point();
 		this.startSpacing = 1f;
 		this.startAngle = 0f;
 		this.rotateEnabled = false;
@@ -91,8 +96,9 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 		this.doubleTapZoomFactor = 2.5f;
 		this.doubleTapZoomOutFactor = 1.4f;
 		ImageGestureListener imageGestureListener = new ImageGestureListener();
-		this.gestureDetector = new GestureDetector(context, imageGestureListener);
+		this.gestureDetector = new com.github.chrisbanes.photoview.gesture.GestureDetector(context, imageGestureListener);
 		this.gestureDetector.setOnDoubleTapListener(imageGestureListener);
+
 	}
 
     
@@ -275,11 +281,12 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	 * @param event
 	 * @param matrix
 	 */
-	private void evaluateTouchState(MotionEvent event, Matrix matrix) {
+	private void evaluateTouchState(TouchEvent event, Matrix matrix) {
 
 		// Save the starting points
 		updateStartPoints(event);
-		savedMatrix.set(matrix);
+		savedMatrix.setMatrix(matrix);
+
 
 		// Update the mode
 		int touchCount = getTouchCount();
@@ -289,18 +296,13 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 			if(isAnimating()) {
 				valueAnimator.cancel();
 			}
-			if(touchCount == 1) {
-				if(mode == PINCH) {
-					if(zoomReleaseDuration > 0 && !isAnimating()) {
-						// Animate zoom release
-						float scale = (float) Math.pow(Math.pow(Math.pow(pinchVelocity, 1d / 1000d), zoomReleaseDuration), zoomReleaseExaggeration);
-						animateZoom(scale, zoomReleaseDuration, mid.x, mid.y, new DecelerateInterpolator());
-					}
-				}
+			if(touchCount == 1 && mode == PINCH && zoomReleaseDuration > 0 && !isAnimating()) {
+				// Animate zoom release
+				float scale = (float) Math.pow(Math.pow(Math.pow(pinchVelocity, 1d / 1000d), zoomReleaseDuration), zoomReleaseExaggeration);
+				animateZoom(scale, zoomReleaseDuration, mid.getPointX(), mid.getPointY(),CurveType.DECELERATE);
 				mode = DRAG;
 			} else if (touchCount > 1) {
 				mode = PINCH;
-
 				// Calculate the start distance
 				startSpacing = spacing(event, getId(0), getId(1));
 				pinchVelocity = 0f;
@@ -316,80 +318,86 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	/*
 	 * Interface implementations
 	 */
-	
+	private void helperOnTouchEvent(TouchEvent event,Matrix matrix){
+		if (mode == DRAG && translateEnabled) {
+			// Get the start point
+			Point start = getStartPoint(0);
+			int index = event.getPointerId(event.getIndex());
+			MmiPoint point1 = event.getPointerPosition(index);
+			final float eventx = point1.getX();
+			final float eventy = point1.getY();
+			float dx = eventx- start.getPointX();
+			dx = corrector.correctRelative(MatrixEx.MTRANS_X, dx);
+			float dy = eventy- start.getPointY();
+			dy = corrector.correctRelative(MatrixEx.MTRANS_Y, dy);
+			matrix.postTranslate(dx, dy);
+		} else if (mode == PINCH) {
+			// Get the new midpoint
+			midPoint(mid, event, getId(0), getId(1));
+			// Rotate
+			if(rotateEnabled) {
+				float deg = startAngle - angle(event, getId(0), getId(1), startedLower(getStartPoint(0), getStartPoint(1)));
+				matrix.postRotate(deg, mid.getPointX(), mid.getPointY());
+			}
+			if(scaleEnabled) {
+				// Scale
+				float spacing = spacing(event, getId(0), getId(1));
+				float sx = spacing / startSpacing;
+				sx = corrector.correctRelative(MatrixEx.MSCALE_X, sx);
+				matrix.postScale(sx, sx, mid.getPointX(), mid.getPointY());
+				if(event.getPointerCount() > 0) {
+					pinchVelocity = pinchVelocity(event, getId(0), getId(1), pinchVelocityWindow);
+				}
+			}
+			if(dragOnPinchEnabled && translateEnabled) {
+				// Translate
+				float dx = mid.getPointX() - startMid.getPointX();
+				float dy = mid.getPointY() - startMid.getPointY();
+				matrix.postTranslate(dx, dy);
+			}
+			corrector.performAbsoluteCorrections();
+		}
+
+	}
 	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		super.onTouch(view, event);
-		gestureDetector.onTouchEvent(event);
-		ImageView imageView;
+	public boolean onTouchEvent(Component view, TouchEvent event) {
+		super.onTouchEvent(view,event);
+		gestureDetector.onTouchEvent(event,view);
+		PhotoView photoView;
 		try {
-			imageView = (ImageView) view;
+			photoView = (PhotoView) view;
 		} catch(ClassCastException e) {
 			throw new IllegalStateException("View must be an instance of ImageView", e);
 		}
 		// Get the matrix
-		Matrix matrix = imageView.getImageMatrix();
+		Matrix matrix=photoView.getImageMatrix();
 		// Sets the image view
-		if(corrector.getImageView() != imageView) {
-			corrector.setImageView(imageView);
-		} else if(imageView.getScaleType() != ScaleType.MATRIX) {
-			imageView.setScaleType(ScaleType.MATRIX);
+		if(corrector.getImageView() != photoView) {
+			corrector.setImageView(photoView);
+		} else{
 			corrector.setMatrix(matrix);
 		}
-		int actionMasked = event.getActionMasked();
+		int actionMasked = event.getAction();
 		switch (actionMasked) {
-		case MotionEvent.ACTION_UP:
-		case MotionEvent.ACTION_POINTER_UP:
-		case MotionEvent.ACTION_DOWN:
-		case MotionEvent.ACTION_POINTER_DOWN:
-			evaluateTouchState(event, matrix);
-			break;
-		case MotionEvent.ACTION_MOVE:
-			if(updateTouchState) {
+			case TouchEvent.PRIMARY_POINT_UP:
+			case TouchEvent.OTHER_POINT_UP:
+			case TouchEvent.PRIMARY_POINT_DOWN:
+			case TouchEvent.OTHER_POINT_DOWN:
 				evaluateTouchState(event, matrix);
-				updateTouchState = false;
-			}
-			// Reuse the saved matrix
-			matrix.set(savedMatrix);
-			if (mode == DRAG) {
-				if(translateEnabled) {
-					// Get the start point
-					PointF start = getStartPoint(0);
-					int index = event.findPointerIndex(getId(0));
-					float dx = event.getX(index) - start.x;
-					dx = corrector.correctRelative(Matrix.MTRANS_X, dx);
-					float dy = event.getY(index) - start.y;
-					dy = corrector.correctRelative(Matrix.MTRANS_Y, dy);
-					matrix.postTranslate(dx, dy);
+				break;
+			case TouchEvent.POINT_MOVE:
+				if(updateTouchState) {
+					evaluateTouchState(event, matrix);
+					updateTouchState = false;
 				}
-			} else if (mode == PINCH) {
-				// Get the new midpoint
-				midPoint(mid, event, getId(0), getId(1));
-				// Rotate
-				if(rotateEnabled) {
-					float deg = startAngle - angle(event, getId(0), getId(1), startedLower(getStartPoint(0), getStartPoint(1)));
-					matrix.postRotate(deg, mid.x, mid.y);
-				}
-				if(scaleEnabled) {
-					// Scale
-					float spacing = spacing(event, getId(0), getId(1));
-					float sx = spacing / startSpacing;
-					sx = corrector.correctRelative(Matrix.MSCALE_X, sx);
-					matrix.postScale(sx, sx, mid.x, mid.y);
-					if(event.getHistorySize() > 0) {
-						pinchVelocity = pinchVelocity(event, getId(0), getId(1), pinchVelocityWindow);
-					}
-				}
-				if(dragOnPinchEnabled && translateEnabled) {
-					// Translate
-					float dx = mid.x - startMid.x;
-					float dy = mid.y - startMid.y;
-					matrix.postTranslate(dx, dy);
-				}
-				corrector.performAbsoluteCorrections();
-			}
-			imageView.invalidate();
-			break;
+				// Reuse the saved matrix
+				matrix.setMatrix(savedMatrix);
+				helperOnTouchEvent(event,matrix);
+
+				photoView.invalidate();
+				break;
+			default:
+				break;
 		}
 		return true; // indicate event was handled
 	}
@@ -397,42 +405,44 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	/**
 	 *
 	 */
-	private class ImageGestureListener extends GestureDetector.SimpleOnGestureListener {
+	private class ImageGestureListener extends com.github.chrisbanes.photoview.gesture.GestureDetector.SimpleOnGestureListener {
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			if (mode == DRAG) {
-				if (flingDuration > 0 && !isAnimating()) {
-					float factor = ((float) flingDuration / 1000f) * flingExaggeration;
-					float[] values = corrector.getValues();
-					float dx = (velocityX * factor) * values[Matrix.MSCALE_X];
-					float dy = (velocityY * factor) * values[Matrix.MSCALE_Y];
-					PropertyValuesHolder flingX = PropertyValuesHolder.ofFloat(FlingAnimatorHandler.PROPERTY_TRANSLATE_X, values[Matrix.MTRANS_X], values[Matrix.MTRANS_X] + dx);
-					PropertyValuesHolder flingY = PropertyValuesHolder.ofFloat(FlingAnimatorHandler.PROPERTY_TRANSLATE_Y, values[Matrix.MTRANS_Y], values[Matrix.MTRANS_Y] + dy);
-					valueAnimator = ValueAnimator.ofPropertyValuesHolder(flingX, flingY);
-					valueAnimator.setDuration(flingDuration);
-					valueAnimator.addUpdateListener(new FlingAnimatorHandler(corrector));
-					valueAnimator.setInterpolator(new DecelerateInterpolator());
+		public boolean onFling(TouchEvent e1, TouchEvent e2, float velocityX, float velocityY) {
+			if(mode==DRAG && flingDuration > 0 && !isAnimating())
+			{
+				float factor = ( flingDuration / 1000f) * flingExaggeration;
+				float[] values = corrector.getValues();
+				float dx =  ((velocityX * factor) * values[MatrixEx.MSCALE_X]);
+				float dy =  ((velocityY * factor) * values[MatrixEx.MSCALE_Y]);
+//					PropertyValuesHolder flingX = PropertyValuesHolder.ofFloat(FlingAnimatorHandler.PROPERTY_TRANSLATE_X, values[Matrix.MTRANS_X], values[Matrix.MTRANS_X] + dx);
+//					PropertyValuesHolder flingY = PropertyValuesHolder.ofFloat(FlingAnimatorHandler.PROPERTY_TRANSLATE_Y, values[Matrix.MTRANS_Y], values[Matrix.MTRANS_Y] + dy);
+//					valueAnimator = ValueAnimator.ofPropertyValuesHolder(flingX, flingY);
+//					valueAnimator.setDuration(flingDuration);
+//					valueAnimator.addUpdateListener(new FlingAnimatorHandler(corrector));
+//					valueAnimator.setInterpolator(new DecelerateInterpolator());
 					valueAnimator.start();
-					return true;
-				}
+					valueAnimator.setValueUpdateListener(new FlingAnimatorHandler(corrector));
 			}
 			return super.onFling(e1, e2, velocityX, velocityY);
 		}
 
 		@Override
-		public boolean onDoubleTapEvent(MotionEvent e) {
-			if (doubleTapZoomFactor > 0 && !isAnimating()) {
-				float sx = corrector.getValues()[Matrix.MSCALE_X];
+		public boolean onDoubleTapEvent(TouchEvent e) {
+			if(doubleTapZoomFactor > 0 && !isAnimating()) {
+				LogUtil.d("Gowtham : Inside onDoubleTapEvent");
+				float sx = corrector.getValues()[MatrixEx.MSCALE_X];
 				float innerFitScale = corrector.getInnerFitScale();
 				float reversalScale = innerFitScale * doubleTapZoomOutFactor;
-				ScaleAnimatorHandler scaleAnimatorHandler = new ScaleAnimatorHandler(corrector, e.getX(), e.getY());
+				ScaleAnimatorHandler scaleAnimatorHandler = new ScaleAnimatorHandler(corrector,
+						e.getPointerPosition(e.getIndex()).getX() ,e.getPointerPosition(e.getIndex()).getY());
 				float scaleTo = sx > reversalScale ? innerFitScale : sx * doubleTapZoomFactor;
 				animateZoom(sx, scaleTo, doubleTapZoomDuration, scaleAnimatorHandler, null);
-				return true;
 			}
-			return super.onDoubleTap(e);
+			return super.onDoubleTapEvent(e);
+
 		}
+
 	}
 
 	/**
@@ -441,7 +451,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	 * @param duration
 	 */
 	public void animateZoom(float zoomFactor, long duration) {
-		float sx = corrector.getValues()[Matrix.MSCALE_X];
+		float sx = corrector.getValues()[MatrixEx.MSCALE_X];
 		animateZoom(sx, sx * zoomFactor, duration, new ScaleAnimatorHandler(corrector), null);
 	}
 
@@ -464,9 +474,9 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
      * @param y
 	 * @param interpolator
      */
-	public void animateZoom(float zoomFactor, long duration, float x, float y, Interpolator interpolator) {
-		float sx = corrector.getValues()[Matrix.MSCALE_X];
-		animateZoom(sx, sx * zoomFactor, duration, new ScaleAnimatorHandler(corrector, x, y), interpolator);
+	public void animateZoom(float zoomFactor, long duration, float x, float y, Integer interpolator) {
+		float sx = corrector.getValues()[MatrixEx.MSCALE_X];
+		animateZoom(sx, sx * zoomFactor, duration, new ScaleAnimatorHandler(corrector, x, y),  interpolator);
 	}
 
 	/**
@@ -474,7 +484,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	 * @param duration
 	 */
 	public void animateZoomOutToFit(long duration) {
-		float sx = corrector.getValues()[Matrix.MSCALE_X];
+		float sx = corrector.getValues()[MatrixEx.MSCALE_X];
 		animateZoom(sx, corrector.getInnerFitScale(), duration, new ScaleAnimatorHandler(corrector), null);
 	}
 
@@ -485,10 +495,9 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	 * @param y
      */
 	public void animateZoomOutToFit(long duration, float x, float y) {
-		float sx = corrector.getValues()[Matrix.MSCALE_X];
+		float sx = corrector.getValues()[MatrixEx.MSCALE_X];
 		animateZoom(sx, corrector.getInnerFitScale(), duration, new ScaleAnimatorHandler(corrector, x, y), null);
 	}
-
 	/**
 	 * <p>Performs a zoom animation from <code>scaleFrom</code> to <code>scaleTo</code> using the given <code>ScaleAnimatorHandler</code>.</p>
 	 * @param scaleFrom
@@ -497,14 +506,17 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	 * @param scaleAnimatorHandler
 	 * @param interpolator
      */
-	private void animateZoom(float scaleFrom, float scaleTo, long duration, ScaleAnimatorHandler scaleAnimatorHandler, Interpolator interpolator) {
+	private void animateZoom(float scaleFrom, float scaleTo, long duration, ScaleAnimatorHandler scaleAnimatorHandler, Integer interpolator) {
 		if(isAnimating()) {
 			throw new IllegalStateException("An animation is currently running; Check isAnimating() first!");
 		}
-		valueAnimator = ValueAnimator.ofFloat(scaleFrom, scaleTo);
+
+		LogUtil.d("Gowtham : Inside animateZoom : " + scaleFrom + " : " + scaleTo);
+
+		valueAnimator = MyValueAnimator.ofFloat(scaleFrom, scaleTo);
 		valueAnimator.setDuration(duration);
-		valueAnimator.addUpdateListener(scaleAnimatorHandler);
-		if(interpolator != null) valueAnimator.setInterpolator(interpolator);
+		valueAnimator.setValueUpdateListener(scaleAnimatorHandler);
+		if(interpolator != null) valueAnimator.setCurveType(interpolator);
 		valueAnimator.start();
 	}
 }

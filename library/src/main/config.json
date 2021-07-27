@@ -1,0 +1,28 @@
+{
+  "app": {
+    "bundleName": "com.github.chrisbanes.sample",
+    "vendor": "github",
+    "version": {
+      "code": 1,
+      "name": "1.0"
+    },
+    "apiVersion": {
+      "compatible": 5,
+      "target": 5,
+      "releaseType": "Release"
+    }
+  },
+  "deviceConfig": {},
+  "module": {
+    "package": "com.github.chrisbanes.library",
+    "deviceType": [
+      "phone",
+      "tablet"
+    ],
+    "distro": {
+      "deliveryWithInstall": true,
+      "moduleName": "library",
+      "moduleType": "har"
+    }
+  }
+}

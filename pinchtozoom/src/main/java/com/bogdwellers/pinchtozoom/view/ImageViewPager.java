@@ -1,21 +1,24 @@
 package com.bogdwellers.pinchtozoom.view;
 
-import android.content.Context;
-import android.graphics.Matrix;
-import android.graphics.drawable.Drawable;
-import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ImageView;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import com.github.chrisbanes.photoview.PhotoView;
+import ohos.agp.components.AttrSet;
+import ohos.agp.components.Component;
+import ohos.agp.components.ComponentContainer;
+import ohos.agp.components.PageSlider;
+import ohos.agp.components.element.Element;
+import ohos.agp.utils.Matrix;
+import ohos.app.Context;
+import ohos.multimodalinput.event.TouchEvent;
+
 
 /**
  * <p><code>ViewPager</code> implementation that allows sideways scrolling only when current image is not zoomed in.</p>
  * Created by Martin on 16-10-2016.
  */
-public class ImageViewPager extends ViewPager {
+public class ImageViewPager extends PageSlider implements Component.TouchEventListener {
 
-    private static final String TAG = ImageViewPager.class.getSimpleName();
+
     private static final float DEFAULT_SCALE_THRESHOLD = 1.2f;
 
     /*
@@ -25,13 +28,31 @@ public class ImageViewPager extends ViewPager {
     private float scaleThreshold;
     private int pointerCount;
 
-	/*
-	 * Constructor(s)
-	 */
+    /*
+     * Constructor(s)
+     */
 
-    public ImageViewPager(Context context, AttributeSet attrs) {
+
+    public ImageViewPager(Context context) {
+        super(context);
+        init();
+
+    }
+
+    public ImageViewPager(Context context, AttrSet attrSet, String styleName) {
+        super(context, attrSet, styleName);
+        init();
+
+    }
+
+    public ImageViewPager(Context context, AttrSet attrs) {
         super(context, attrs);
+        init();
+    }
+
+    private void init() {
         this.scaleThreshold = DEFAULT_SCALE_THRESHOLD;
+        setTouchEventListener(this::onTouchEvent);
     }
 
     /*
@@ -40,50 +61,69 @@ public class ImageViewPager extends ViewPager {
 
     /**
      * <p>Sets the scale threshold.</p>
+     *
      * @param scaleThreshold
      */
     public void setScaleThreshold(float scaleThreshold) {
         this.scaleThreshold = scaleThreshold;
     }
 
-	/*
-	 * Overrides
-	 */
+    /*
+     * Overrides
+     */
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        pointerCount = ev.getPointerCount();
-        requestDisallowInterceptTouchEvent(pointerCount > 1);
-        return super.onInterceptTouchEvent(ev);
+    public boolean onTouchEvent(Component component, TouchEvent touchEvent) {
+        onInterceptTouchEvent(touchEvent);
+        return true;
     }
 
-    @Override
-    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-        if(v instanceof ImageView) {
-            ImageView iv = (ImageView) v;
-            Drawable drawable = iv.getDrawable();
-            if(drawable != null) {
+    public boolean onInterceptTouchEvent(TouchEvent ev) {
+        pointerCount = ev.getPointerCount();
+        return false;
+    }
+
+
+    protected boolean can_Scroll(Component v, boolean checkV, float dx, float x, float y) {
+        if (v instanceof PhotoView) {
+            PhotoView iv = (PhotoView) v;
+            Element drawable = iv.getImageElement();
+
+            if (drawable != null) {
                 float vw = iv.getWidth();
                 float vh = iv.getHeight();
-                float dw = drawable.getIntrinsicWidth();
-                float dh = drawable.getIntrinsicHeight();
+                float dw = drawable.getWidth();
+                float dh = drawable.getHeight();
 
                 Matrix matrix = iv.getImageMatrix();
-                matrix.getValues(VALUES);
-                float tx = VALUES[Matrix.MTRANS_X] + dx;
-                float sdw = dw * VALUES[Matrix.MSCALE_X];
+                matrix.getElements(VALUES);
+                float tx = VALUES[MatrixEx.MTRANS_X] + dx;
+                float sdw = dw * VALUES[MatrixEx.MSCALE_X];
 
-                //Log.d(TAG, "sdw: " + sdw + " vw: " + vw);
-
-                return VALUES[Matrix.MSCALE_X] / centerInsideScale(vw, vh, dw, dh) > scaleThreshold && !translationExceedsBoundary(tx, vw, sdw) && sdw > vw && pointerCount == 1; // Assumes x-y scales are equal
+                return VALUES[MatrixEx.MSCALE_X] / centerInsideScale(vw, vh, dw, dh) > scaleThreshold && !translationExceedsBoundary(tx, vw, sdw) && sdw > vw && pointerCount == 1; // Assumes x-y scales are equal
             }
         }
-        return super.canScroll(v, checkV, dx, x, y);
+        if (v instanceof ComponentContainer) {
+            ComponentContainer group = (ComponentContainer) v;
+            float scrollX = v.getContentPositionX();
+            float scrollY = v.getContentPositionY();
+            int count = group.getChildCount();
+
+            for (int i = count - 1; i >= 0; --i) {
+                Component child = group.getComponentAt(i);
+                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() && y + scrollY >= child.getTop() && y + scrollY < child.getBottom() && this.can_Scroll(child, true, dx, x + scrollX - child.getLeft(), y + scrollY - child.getTop())) {
+                    return true;
+                }
+            }
+        }
+
+        return checkV && v.canScroll((int) -dx);
     }
 
-	/*
-	 * Static methods
-	 */
+
+    /*
+     * Static methods
+     */
 
     /**
      * NOT Thread safe! (But it all happens on the UI thread anyway)
@@ -92,6 +132,7 @@ public class ImageViewPager extends ViewPager {
 
     /**
      * <p>Returns the scale ratio between view and drawable for the longest side.</p>
+     *
      * @param vw
      * @param vh
      * @param dw
@@ -104,6 +145,7 @@ public class ImageViewPager extends ViewPager {
 
     /**
      * <p>Determines whether a translation makes the view exceed the boundary of a drawable.</p>
+     *
      * @param tx
      * @param vw
      * @param dw
@@ -112,4 +154,5 @@ public class ImageViewPager extends ViewPager {
     public static final boolean translationExceedsBoundary(float tx, float vw, float dw) {
         return dw >= vw && (tx > 0 || tx < vw - dw);
     }
+
 }
