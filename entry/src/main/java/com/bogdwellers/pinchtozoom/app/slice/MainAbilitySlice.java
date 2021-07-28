@@ -4,6 +4,9 @@ import com.bogdwellers.pinchtozoom.app.ResourceTable;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
 
+/**
+ * MainAbility.
+ */
 public class MainAbilitySlice extends AbilitySlice {
     @Override
     public void onStart(Intent intent) {

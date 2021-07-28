@@ -59,6 +59,10 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
      * Class methods
      */
 
+    public float getScaleThreshold() {
+        return this.scaleThreshold;
+    }
+
     /**
      * <p>Sets the scale threshold.</p>
      *

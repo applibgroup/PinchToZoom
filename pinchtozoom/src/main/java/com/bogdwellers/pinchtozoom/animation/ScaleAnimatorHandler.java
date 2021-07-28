@@ -14,6 +14,30 @@ import ohos.agp.utils.Matrix;
 public class ScaleAnimatorHandler extends AbsCorrectorAnimatorHandler {
 
 
+    public float getPx() {
+        return px;
+    }
+
+    public void setPx(float px) {
+        this.px = px;
+    }
+
+    public float getPy() {
+        return py;
+    }
+
+    public void setPy(float py) {
+        this.py = py;
+    }
+
+    public boolean isTranslate() {
+        return translate;
+    }
+
+    public void setTranslate(boolean translate) {
+        this.translate = translate;
+    }
+
     private float px;
     private float py;
     private boolean translate;

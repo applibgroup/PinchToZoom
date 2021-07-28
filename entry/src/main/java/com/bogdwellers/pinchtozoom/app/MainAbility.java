@@ -1,10 +1,12 @@
 package com.bogdwellers.pinchtozoom.app;
 
-import com.bogdwellers.pinchtozoom.app.slice.MainAbilitySlice;
 import com.bogdwellers.pinchtozoom.app.slice.SecondAbilitySlice;
 import ohos.aafwk.ability.Ability;
 import ohos.aafwk.content.Intent;
 
+/**
+ * MainAbility.
+ */
 public class MainAbility extends Ability {
     @Override
     public void onStart(Intent intent) {
