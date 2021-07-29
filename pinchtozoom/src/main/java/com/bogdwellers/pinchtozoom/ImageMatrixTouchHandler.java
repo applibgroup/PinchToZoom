@@ -477,20 +477,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         @Override
         public boolean onFling(TouchEvent e1, TouchEvent e2, float velocityX, float velocityY) {
             if (mode == DRAG && flingDuration > 0 && !isAnimating()) {
-                //float factor = (flingDuration / 1000f) * flingExaggeration;
-                //float[] values = corrector.getValues();
-                // float dx =  ((velocityX * factor) * values[MatrixEx.MSCALE_X]);
-                // float dy =  ((velocityY * factor) * values[MatrixEx.MSCALE_Y]);
-
-                //PropertyValuesHolder flingX = PropertyValuesHolder.ofFloat(FlingAnimatorHandler.PROPERTY_TRANSLATE_X,
-                //                values[Matrix.MTRANS_X], values[Matrix.MTRANS_X] + dx);
-                //PropertyValuesHolder flingY = PropertyValuesHolder.ofFloat(FlingAnimatorHandler.PROPERTY_TRANSLATE_Y,
-                //                values[Matrix.MTRANS_Y], values[Matrix.MTRANS_Y] + dy);
-                //valueAnimator = ValueAnimator.ofPropertyValuesHolder(flingX, flingY);
-                //valueAnimator.setDuration(flingDuration);
-                //valueAnimator.addUpdateListener(new FlingAnimatorHandler(corrector));
-                //valueAnimator.setInterpolator(new DecelerateInterpolator());
-
+                
                 valueAnimator.start();
                 valueAnimator.setValueUpdateListener(new FlingAnimatorHandler(corrector));
             }
