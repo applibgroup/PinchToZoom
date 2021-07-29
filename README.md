@@ -9,14 +9,6 @@ This library has been inspired by [martinwithaar\\PinchToZoom](https://github.co
 
 ## Get it
 
-    Download the Library and Add it into ur Application
-
-Add these line to your *build.gradle*'s dependencies:
-```
-implementation project(path: ':pinchtozoom')
-implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
-```
-
 1. For using PinchToZoom module in sample app, include the source code and add the below dependencies in entry/build.gradle to generate hap/support.har.
 ```
 implementation project(path: ':pinchtozoom')
