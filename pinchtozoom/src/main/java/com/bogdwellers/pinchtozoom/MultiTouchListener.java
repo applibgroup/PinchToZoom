@@ -126,7 +126,7 @@ public class MultiTouchListener implements TouchEventListener {
         
         for (int i = 0, n = event.getPointerCount(); i < n; i++) {
             pointerId = event.getPointerId(i);
-            MmiPoint point1 = event.getPointerPosition(pointerId);
+            MmiPoint point1 = event.getPointerPosition(i);
             final float eventx = point1.getX();
             final float eventy = point1.getY();
             startPoint = new PointF(eventx, eventy);

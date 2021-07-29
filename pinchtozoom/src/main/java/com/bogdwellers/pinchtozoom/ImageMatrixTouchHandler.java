@@ -369,12 +369,14 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
             } else if (touchCount > 1) {
                 mode = PINCH;
                 // Calculate the start distance
-                startSpacing = spacing(event, getId(0), getId(1));
-                pinchVelocity = 0f;
+                if (event.getPointerCount() > 1) {
+                    startSpacing = spacing(event, getId(0), getId(1));
+                    pinchVelocity = 0f;
 
-                if (startSpacing > MIN_PINCH_DIST_PIXELS) {
-                    midPoint(startMid, event, getId(0), getId(1));
-                    startAngle = angle(event, getId(0), getId(1), startedLower(getStartPoint(0), getStartPoint(1)));
+                    if (startSpacing > MIN_PINCH_DIST_PIXELS) {
+                        midPoint(startMid, event, getId(0), getId(1));
+                        startAngle = angle(event, getId(0), getId(1), startedLower(getStartPoint(0), getStartPoint(1)));
+                    }
                 }
             }
         }
