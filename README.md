@@ -4,6 +4,9 @@
 # PinchToZoom
 OHOS's ImageView/PhotoView pinch-to-zoom made easy
 
+# Source
+This library has been inspired by [martinwithaar\\PinchToZoom](https://github.com/martinwithaar/PinchToZoom).
+
 ## Get it
 
     Download the Library and Add it into ur Application
@@ -11,6 +14,22 @@ OHOS's ImageView/PhotoView pinch-to-zoom made easy
 Add these line to your *build.gradle*'s dependencies:
 ```
 implementation project(path: ':pinchtozoom')
+implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
+```
+
+1. For using PinchToZoom module in sample app, include the source code and add the below dependencies in entry/build.gradle to generate hap/support.har.
+```
+implementation project(path: ':pinchtozoom')
+implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
+```
+2. For using PinchToZoom module in separate application using har file, add the har file in the entry/libs folder and add the dependencies in entry/build.gradle file.
+```
+ implementation fileTree(dir: 'libs', include: ['*.har'])
+ implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
+```
+3. For using PinchToZoom module from a remote repository in separate application, add the below dependencies in entry/build.gradle file.
+```
+implementation 'dev.applibgroup:pinchtozoom:1.0.0'
 implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
 ```
 
