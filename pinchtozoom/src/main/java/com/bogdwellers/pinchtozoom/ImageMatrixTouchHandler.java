@@ -380,6 +380,62 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         }
     }
 
+    /**
+     * helperOnTouchEvent.
+     *
+     * @param matrix - matrix.
+     * @param event - event.
+     */
+    public void helperOnTouchEvent(Matrix matrix, TouchEvent event) {
+        if (mode == DRAG && translateEnabled) {
+            // Get the start point
+            PointF start = getStartPoint(0);
+            MmiPoint point1 = event.getPointerPosition(event.getIndex());
+            final float eventx = point1.getX();
+            final float eventy = point1.getY();
+            float dx = eventx - start.mx;
+            dx = corrector.correctRelative(MatrixEx.MTRANS_X, dx);
+            float dy = eventy - start.my;
+            dy = corrector.correctRelative(MatrixEx.MTRANS_Y, dy);
+            matrix.postTranslate(dx, dy);
+        } else if (mode == PINCH && event.getPointerCount() > 1) {
+            // Get the new midpoint
+            midPoint(mid, event, getId(0), getId(1));
+            // Rotate
+            if (rotateEnabled) {
+                float deg = startAngle - angle(event, getId(0), getId(1),
+                        startedLower(getStartPoint(0), getStartPoint(1)));
+
+                matrix.postRotate(deg, mid.mx, mid.my);
+            }
+            if (scaleEnabled) {
+                // Scale
+                float spacing = spacing(event, getId(0), getId(1));
+
+                float sx = spacing / startSpacing;
+
+                sx = corrector.correctRelative(MatrixEx.MSCALE_X, sx);
+
+                matrix.postScale(sx, sx, mid.mx, mid.my);
+                if (event.getPointerCount() > 0) {
+                    pinchVelocity = pinchVelocity(event, getId(0), getId(1), pinchVelocityWindow);
+
+                }
+            }
+            if (dragOnPinchEnabled && translateEnabled) {
+                // Translate
+                float dx = mid.mx - startMid.mx;
+                float dy = mid.my - startMid.my;
+
+                matrix.postTranslate(dx, dy);
+            }
+            corrector.performAbsoluteCorrections();
+
+        }
+
+    }
+
+
     @Override
     public boolean onTouchEvent(Component view, TouchEvent event) {
         super.onTouchEvent(view, event);
@@ -413,56 +469,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
                 }
                 // Reuse the saved matrix
                 matrix.setMatrix(savedMatrix);
-                if (mode == DRAG) {
-                    if (translateEnabled) {
-                        // Get the start point
-                        PointF start = getStartPoint(0);
-                        int index = event.getPointerId(event.getIndex());
-                        MmiPoint point1 = event.getPointerPosition(event.getIndex());
-                        final float eventx = point1.getX();
-                        final float eventy = point1.getY();
-                        float dx = eventx - start.mx;
-                        dx = corrector.correctRelative(MatrixEx.MTRANS_X, dx);
-                        float dy = eventy - start.my;
-                        dy = corrector.correctRelative(MatrixEx.MTRANS_Y, dy);
-                        matrix.postTranslate(dx, dy);
-                    }
-                } else if (mode == PINCH) {
-                    // Get the new midpoint
-                    if (event.getPointerCount() > 1) {
-
-                        midPoint(mid, event, getId(0), getId(1));
-                        // Rotate
-                        if (rotateEnabled) {
-                            float deg = startAngle - angle(event, getId(0), getId(1),
-                                    startedLower(getStartPoint(0), getStartPoint(1)));
-
-                            matrix.postRotate(deg, mid.mx, mid.my);
-                        }
-                        if (scaleEnabled) {
-                            // Scale
-                            float spacing = spacing(event, getId(0), getId(1));
-
-                            float sx = spacing / startSpacing;
-
-                            sx = corrector.correctRelative(MatrixEx.MSCALE_X, sx);
-
-                            matrix.postScale(sx, sx, mid.mx, mid.my);
-                            if (event.getPointerCount() > 0) {
-                                pinchVelocity = pinchVelocity(event, getId(0), getId(1), pinchVelocityWindow);
-
-                            }
-                        }
-                        if (dragOnPinchEnabled && translateEnabled) {
-                            // Translate
-                            float dx = mid.mx - startMid.mx;
-                            float dy = mid.my - startMid.my;
-
-                            matrix.postTranslate(dx, dy);
-                        }
-                        corrector.performAbsoluteCorrections();
-                    }
-                }
+                helperOnTouchEvent(matrix, event);
                 photoView.setImageMatrix(matrix);
                 photoView.invalidate();
                 break;
