@@ -11,82 +11,88 @@ import com.github.chrisbanes.photoview.PhotoView;
  * @author Martin - Martin.
  *
  */
-public abstract class ImageMatrixCorrector extends MatrixCorrector { 
+public abstract class ImageMatrixCorrector extends MatrixCorrector {
 
-	private PhotoView photoView;
-	private float scaledImageWidth;
-	private float scaledImageHeight;
+    private PhotoView photoView;
+    private float scaledImageWidth;
+    private float scaledImageHeight;
 
-	@Override
-	public void setMatrix(Matrix matrix) {
-		super.setMatrix(matrix);
-		updateScaledImageDimensions();
-	}
+    @Override
+    public void setMatrix(Matrix matrix) {
+        super.setMatrix(matrix);
+        updateScaledImageDimensions();
+    }
 
-	/**
-	 * Sets the ImageView. This also sets its inner image matrix as this corrector's matrix automatically.
-	 *
-	 * @param imageView - imageView.
-	 */
-	public void setImageView(PhotoView imageView) {
-
-		this.photoView = imageView;
-		if(imageView != null) {
-			Matrix matrix=imageView.getImageMatrix();
-			setMatrix(matrix);
-		}
-	}
-
-	/**
-	 * PhotoView.
-	 *
-	 * @return - returns.
+    /**
+     * Sets the ImageView. This also sets its inner image matrix as this corrector's matrix automatically.
+     *
+     * @param imageView - imageView.
      */
-	public PhotoView getImageView() {
-		return photoView;
-	}
+    public void setImageView(PhotoView imageView) {
 
-	/**
-	 * getInnerFirScale.
-	 * @return - return.
+        this.photoView = imageView;
+        if (imageView != null) {
+            Matrix matrix = imageView.getImageMatrix();
+            setMatrix(matrix);
+        }
+    }
+
+    /**
+     * PhotoView.
+     *
+     * @return - returns.
      */
-	public float getInnerFitScale() {
-		Element drawable = photoView.getImageElement();
-		float widthRatio = (float) drawable.getWidth() / photoView.getWidth();
-		float heightRatio = (float) drawable.getHeight() / photoView.getHeight();
-		if (widthRatio > heightRatio) {
-			return 1f / widthRatio;
-		} else {
-			return 1f / heightRatio;
-		}
-	}
-	
-	/**
-	 * (Re)calculates the image's current dimensions.
-	 */
-	protected void updateScaledImageDimensions() {
-		float[] values = getValues();
-		Element drawable = photoView.getImageElement();
-		if (drawable != null) {
-			scaledImageWidth = values[MatrixEx.MSCALE_X] * drawable.getWidth();
-			scaledImageHeight = values[MatrixEx.MSCALE_Y] * drawable.getHeight();
-		} else {
-			scaledImageWidth = scaledImageHeight = 0f;
-		}
-	}
+    public PhotoView getImageView() {
+        return photoView;
+    }
 
-	/**
-	 * Returns the width of the scaled image.
-	 *
-	 * @return - return.
+    /**
+     * getInnerFirScale.
+     *
+     * @return - return.
      */
-	protected float getScaledImageWidth() { return scaledImageWidth; }
+    public float getInnerFitScale() {
+        Element drawable = photoView.getImageElement();
+        float widthRatio = (float) drawable.getWidth() / photoView.getWidth();
+        float heightRatio = (float) drawable.getHeight() / photoView.getHeight();
+        if (widthRatio > heightRatio) {
+            return 1f / widthRatio;
+        } else {
+            return 1f / heightRatio;
+        }
+    }
 
-	/**
-	 * * <p>Returns the height of the scaled image.</p>
-	 * @return
+    /**
+     * (Re)calculates the image's current dimensions.
      */
-	protected float getScaledImageHeight() { return scaledImageHeight; }
+    protected void updateScaledImageDimensions() {
+        float[] values = getValues();
+        Element drawable = photoView.getImageElement();
+        if (drawable != null) {
+            scaledImageWidth = values[MatrixEx.MSCALE_X] * drawable.getWidth();
+            scaledImageHeight = values[MatrixEx.MSCALE_Y] * drawable.getHeight();
+        } else {
+            scaledImageWidth = scaledImageHeight = 0f;
+        }
+    }
 
-	public abstract float correctAbsolute(int vector, float x);
+    /**
+     * Returns the width of the scaled image.
+     *
+     * @return - return.
+     */
+    protected float getScaledImageWidth() {
+        return scaledImageWidth;
+    }
+
+    /**
+     * Returns the height of the scaled image.
+     *
+     * @return - return.
+     */
+    protected float getScaledImageHeight() {
+        return scaledImageHeight;
+    }
+
+    public abstract float correctAbsolute(int vector, float x);
 }

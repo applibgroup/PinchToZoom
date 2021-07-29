@@ -1,7 +1,5 @@
 package com.bogdwellers.pinchtozoom.view;
 
-import com.bogdwellers.pinchtozoom.util.MatrixEx;
-import com.github.chrisbanes.photoview.PhotoView;
 import ohos.agp.components.AttrSet;
 import ohos.agp.components.Component;
 import ohos.agp.components.ComponentContainer;
@@ -10,6 +8,9 @@ import ohos.agp.components.element.Element;
 import ohos.agp.utils.Matrix;
 import ohos.app.Context;
 import ohos.multimodalinput.event.TouchEvent;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import com.github.chrisbanes.photoview.PhotoView;
+
 
 
 /**
@@ -32,13 +33,24 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
      * Constructor(s)
      */
 
-
+    /**
+     * ImageViewPager.
+     *
+     * @param context context.
+     */
     public ImageViewPager(Context context) {
         super(context);
         init();
 
     }
 
+    /**
+     *  ImageViewPager.
+     *
+     * @param context context
+     * @param attrSet set
+     * @param styleName Name
+     */
     public ImageViewPager(Context context, AttrSet attrSet, String styleName) {
         super(context, attrSet, styleName);
         init();
@@ -66,7 +78,7 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
     /**
      * <p>Sets the scale threshold.</p>
      *
-     * @param scaleThreshold
+     * @param scaleThreshold - scaleThreshold
      */
     public void setScaleThreshold(float scaleThreshold) {
         this.scaleThreshold = scaleThreshold;
@@ -104,7 +116,9 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
                 float tx = VALUES[MatrixEx.MTRANS_X] + dx;
                 float sdw = dw * VALUES[MatrixEx.MSCALE_X];
 
-                return VALUES[MatrixEx.MSCALE_X] / centerInsideScale(vw, vh, dw, dh) > scaleThreshold && !translationExceedsBoundary(tx, vw, sdw) && sdw > vw && pointerCount == 1; // Assumes x-y scales are equal
+                return VALUES[MatrixEx.MSCALE_X] / centerInsideScale(vw, vh, dw, dh) > scaleThreshold
+                        && !translationExceedsBoundary(tx, vw, sdw) && sdw > vw && pointerCount == 1;
+                // Assumes x-y scales are equal
             }
         }
         if (v instanceof ComponentContainer) {
@@ -115,7 +129,10 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
 
             for (int i = count - 1; i >= 0; --i) {
                 Component child = group.getComponentAt(i);
-                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() && y + scrollY >= child.getTop() && y + scrollY < child.getBottom() && this.can_Scroll(child, true, dx, x + scrollX - child.getLeft(), y + scrollY - child.getTop())) {
+                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight()
+                        && y + scrollY >= child.getTop() && y + scrollY < child.getBottom()
+                        && this.can_Scroll(child, true, dx,
+                        x + scrollX - child.getLeft(), y + scrollY - child.getTop())) {
                     return true;
                 }
             }
@@ -130,18 +147,18 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
      */
 
     /**
-     * NOT Thread safe! (But it all happens on the UI thread anyway)
+     * NOT Thread safe! (But it all happens on the UI thread anyway).
      */
     private static final float[] VALUES = new float[9];
 
     /**
      * <p>Returns the scale ratio between view and drawable for the longest side.</p>
      *
-     * @param vw
-     * @param vh
-     * @param dw
-     * @param dh
-     * @return
+     * @param vw - viewWidth.
+     * @param vh - viewHeight.
+     * @param dw - drawable/element width.
+     * @param dh - drawable/element height.
+     * @return float.
      */
     public static final float centerInsideScale(float vw, float vh, float dw, float dh) {
         return vw / vh <= dw / dh ? vw / dw : vh / dh;
@@ -150,10 +167,10 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
     /**
      * <p>Determines whether a translation makes the view exceed the boundary of a drawable.</p>
      *
-     * @param tx
-     * @param vw
-     * @param dw
-     * @return
+     * @param tx float
+     * @param vw float
+     * @param dw float
+     * @return boolean
      */
     public static final boolean translationExceedsBoundary(float tx, float vw, float dw) {
         return dw >= vw && (tx > 0 || tx < vw - dw);

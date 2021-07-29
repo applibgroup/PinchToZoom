@@ -1,9 +1,5 @@
 package com.bogdwellers.pinchtozoom.app.slice;
 
-import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
-import com.bogdwellers.pinchtozoom.app.ResourceTable;
-import com.bogdwellers.pinchtozoom.view.ImageViewPager;
-import com.github.chrisbanes.photoview.PhotoView;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
 import ohos.agp.components.Component;
@@ -12,6 +8,10 @@ import ohos.agp.components.LayoutScatter;
 import ohos.agp.components.PageSliderProvider;
 import ohos.app.Context;
 import ohos.multimodalinput.event.TouchEvent;
+import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
+import com.bogdwellers.pinchtozoom.app.ResourceTable;
+import com.bogdwellers.pinchtozoom.view.ImageViewPager;
+import com.github.chrisbanes.photoview.PhotoView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class SecondAbilitySlice extends AbilitySlice {
     public static final String PICKED_IMAGES = "picked_images";
 
     private ImageViewPager viewPager;
-    private ImageViewPagerAdapter imageViewPagerAdapter;
+
 
 
     @Override
@@ -38,7 +38,7 @@ public class SecondAbilitySlice extends AbilitySlice {
 
         addDefaultImages(drawables);
 
-
+        ImageViewPagerAdapter imageViewPagerAdapter;
 
         imageViewPagerAdapter = new ImageViewPagerAdapter(drawables);
 

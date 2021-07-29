@@ -26,7 +26,7 @@ public class SecondAbilitySliceTest {
 
     @Test
     public void getTouchCount() {
-        List<Integer> pointerIds = new ArrayList<Integer>();
+        List<Integer> pointerIds = new ArrayList<>();
         pointerIds.add(1);
         pointerIds.add(3);
         pointerIds.add(5);
@@ -37,7 +37,7 @@ public class SecondAbilitySliceTest {
 
     @Test
     public void isTouchingTrue() {
-        List<Integer> pointerIds = new ArrayList<Integer>();
+        List<Integer> pointerIds = new ArrayList<>();
         pointerIds.add(1);
         pointerIds.add(3);
         pointerIds.add(5);
@@ -48,7 +48,7 @@ public class SecondAbilitySliceTest {
 
     @Test
     public void getId() {
-        List<Integer> pointerIds = new ArrayList<Integer>();
+        List<Integer> pointerIds = new ArrayList<>();
         pointerIds.add(1);
         pointerIds.add(3);
         pointerIds.add(5);

@@ -1,8 +1,8 @@
 package com.bogdwellers.pinchtozoom.app.slice;
 
-import com.bogdwellers.pinchtozoom.app.ResourceTable;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
+import com.bogdwellers.pinchtozoom.app.ResourceTable;
 
 /**
  * MainAbility.
