@@ -1,8 +1,7 @@
 package com.bogdwellers.pinchtozoom.animation;
 
-
-import com.bogdwellers.pinchtozoom.ImageMatrixCorrector;
 import ohos.agp.animation.AnimatorValue;
+import com.bogdwellers.pinchtozoom.ImageMatrixCorrector;
 
 /**
  * Created by Martin on 13-10-2016.

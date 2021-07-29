@@ -2,13 +2,16 @@ package com.bogdwellers.pinchtozoom.util;
 
 import ohos.agp.animation.AnimatorValue;
 
+/**
+ * MyValueAnimator.
+ */
 public class MyValueAnimator extends AnimatorValue {
     private float start = 0;
     private float end = 1;
     private ValueUpdateListener myValueUpdateListener;
 
     /**
-     * 获取一个自定义初始值和结束值的数值动画对象
+     * 获取一个自定义初始值和结束值的数值动画对象.
      *
      * @param start 起始值
      * @param end   结束值
@@ -21,6 +24,9 @@ public class MyValueAnimator extends AnimatorValue {
         return myValueAnimator;
     }
 
+    /**
+     * MyValueAnimator.
+     */
     public MyValueAnimator() {
         super.setValueUpdateListener(new ValueUpdateListener() {
             @Override
@@ -34,7 +40,7 @@ public class MyValueAnimator extends AnimatorValue {
     }
 
     /**
-     * 设置数值动画的起始值和结束值
+     * 设置数值动画的起始值和结束值.
      *
      * @param start 起始值
      * @param end   结束值

@@ -1,8 +1,8 @@
 package com.bogdwellers.pinchtozoom.app;
 
-import com.bogdwellers.pinchtozoom.app.slice.SecondAbilitySlice;
 import ohos.aafwk.ability.Ability;
 import ohos.aafwk.content.Intent;
+import com.bogdwellers.pinchtozoom.app.slice.SecondAbilitySlice;
 
 /**
  * MainAbility.

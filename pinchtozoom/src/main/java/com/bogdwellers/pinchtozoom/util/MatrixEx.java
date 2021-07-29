@@ -2,6 +2,9 @@ package com.bogdwellers.pinchtozoom.util;
 
 import ohos.agp.utils.Matrix;
 
+/**
+ * MatrixEx.
+ */
 public class MatrixEx extends Matrix {
     public static final int MSCALE_X = 0;   //!< use with getValues/setValues
     public static final int MSKEW_X  = 1;   //!< use with getValues/setValues

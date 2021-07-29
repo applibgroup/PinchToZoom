@@ -1,11 +1,10 @@
 package com.bogdwellers.pinchtozoom.animation;
 
-
+import ohos.agp.animation.AnimatorValue;
+import ohos.agp.utils.Matrix;
 import com.bogdwellers.pinchtozoom.ImageMatrixCorrector;
 import com.bogdwellers.pinchtozoom.util.MatrixEx;
 import com.github.chrisbanes.photoview.PhotoView;
-import ohos.agp.animation.AnimatorValue;
-import ohos.agp.utils.Matrix;
 
 /**
  * Created by Martin on 12-10-2016.
@@ -47,6 +46,13 @@ public class ScaleAnimatorHandler extends AbsCorrectorAnimatorHandler {
         this.translate = false;
     }
 
+    /**
+     * Constructor.
+     *
+     * @param corrector - matrix.
+     * @param px - px.
+     * @param py - py.
+     */
     public ScaleAnimatorHandler(ImageMatrixCorrector corrector, float px, float py) {
         super(corrector);
         this.px = px;
