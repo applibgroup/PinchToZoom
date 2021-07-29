@@ -4,7 +4,6 @@ import ohos.agp.animation.Animator.CurveType;
 import ohos.agp.animation.AnimatorValue;
 import ohos.agp.components.Component;
 import ohos.agp.utils.Matrix;
-import ohos.agp.utils.Point;
 import ohos.app.Context;
 import ohos.eventhandler.EventHandler;
 import ohos.eventhandler.EventRunner;
@@ -14,6 +13,7 @@ import com.bogdwellers.pinchtozoom.animation.FlingAnimatorHandler;
 import com.bogdwellers.pinchtozoom.animation.ScaleAnimatorHandler;
 import com.bogdwellers.pinchtozoom.util.MatrixEx;
 import com.bogdwellers.pinchtozoom.util.MyValueAnimator;
+import com.bogdwellers.pinchtozoom.util.PointF;
 import com.github.chrisbanes.photoview.LogUtil;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.github.chrisbanes.photoview.gesture.GestureDetector;
@@ -74,8 +74,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         return zoomReleaseExaggeration;
     }
 
-    private Point startMid;
-    private Point mid;
+    private PointF startMid;
+    private PointF mid;
     private float startSpacing;
     private float startAngle;
     private float pinchVelocity;
@@ -117,8 +117,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         this.corrector = corrector;
         this.savedMatrix = new Matrix();
         this.mode = NONE;
-        this.startMid = new Point();
-        this.mid = new Point();
+        this.startMid = new PointF();
+        this.mid = new PointF();
         this.startSpacing = 1f;
         this.startAngle = 0f;
         this.rotateEnabled = false;
@@ -364,7 +364,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
                 // Animate zoom release
                 float scale = (float) Math.pow(Math.pow(Math.pow(pinchVelocity, 1d / 1000d), zoomReleaseDuration), 
                         zoomReleaseExaggeration);
-                animateZoom(scale, zoomReleaseDuration, mid.getPointX(), mid.getPointY(), CurveType.DECELERATE);
+                animateZoom(scale, zoomReleaseDuration, mid.mx, mid.my, CurveType.DECELERATE);
                 mode = DRAG;
             } else if (touchCount > 1) {
                 mode = PINCH;
@@ -380,51 +380,61 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         }
     }
 
-    /*
-     * Interface implementations
+    /**
+     * helperOnTouchEvent.
+     *
+     * @param matrix - matrix.
+     * @param event - event.
      */
-    private void helperOnTouchEvent(TouchEvent event, Matrix matrix) {
+    public void helperOnTouchEvent(Matrix matrix, TouchEvent event) {
         if (mode == DRAG && translateEnabled) {
             // Get the start point
-            Point start = getStartPoint(0);
-            int index = event.getPointerId(event.getIndex());
-            MmiPoint point1 = event.getPointerPosition(index);
+            PointF start = getStartPoint(0);
+            MmiPoint point1 = event.getPointerPosition(event.getIndex());
             final float eventx = point1.getX();
             final float eventy = point1.getY();
-            float dx = eventx - start.getPointX();
+            float dx = eventx - start.mx;
             dx = corrector.correctRelative(MatrixEx.MTRANS_X, dx);
-            float dy = eventy - start.getPointY();
+            float dy = eventy - start.my;
             dy = corrector.correctRelative(MatrixEx.MTRANS_Y, dy);
             matrix.postTranslate(dx, dy);
-        } else if (mode == PINCH) {
+        } else if (mode == PINCH && event.getPointerCount() > 1) {
             // Get the new midpoint
             midPoint(mid, event, getId(0), getId(1));
             // Rotate
             if (rotateEnabled) {
-                float deg = startAngle - angle(event, getId(0), getId(1), 
+                float deg = startAngle - angle(event, getId(0), getId(1),
                         startedLower(getStartPoint(0), getStartPoint(1)));
-                matrix.postRotate(deg, mid.getPointX(), mid.getPointY());
+
+                matrix.postRotate(deg, mid.mx, mid.my);
             }
             if (scaleEnabled) {
                 // Scale
                 float spacing = spacing(event, getId(0), getId(1));
+
                 float sx = spacing / startSpacing;
+
                 sx = corrector.correctRelative(MatrixEx.MSCALE_X, sx);
-                matrix.postScale(sx, sx, mid.getPointX(), mid.getPointY());
+
+                matrix.postScale(sx, sx, mid.mx, mid.my);
                 if (event.getPointerCount() > 0) {
                     pinchVelocity = pinchVelocity(event, getId(0), getId(1), pinchVelocityWindow);
+
                 }
             }
             if (dragOnPinchEnabled && translateEnabled) {
                 // Translate
-                float dx = mid.getPointX() - startMid.getPointX();
-                float dy = mid.getPointY() - startMid.getPointY();
+                float dx = mid.mx - startMid.mx;
+                float dy = mid.my - startMid.my;
+
                 matrix.postTranslate(dx, dy);
             }
             corrector.performAbsoluteCorrections();
+
         }
 
     }
+
 
     @Override
     public boolean onTouchEvent(Component view, TouchEvent event) {
@@ -459,8 +469,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
                 }
                 // Reuse the saved matrix
                 matrix.setMatrix(savedMatrix);
-                helperOnTouchEvent(event, matrix);
-
+                helperOnTouchEvent(matrix, event);
+                photoView.setImageMatrix(matrix);
                 photoView.invalidate();
                 break;
             default:
@@ -477,7 +487,6 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         @Override
         public boolean onFling(TouchEvent e1, TouchEvent e2, float velocityX, float velocityY) {
             if (mode == DRAG && flingDuration > 0 && !isAnimating()) {
-                
                 valueAnimator.start();
                 valueAnimator.setValueUpdateListener(new FlingAnimatorHandler(corrector));
             }
@@ -487,7 +496,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
         @Override
         public boolean onDoubleTapEvent(TouchEvent e) {
             if (doubleTapZoomFactor > 0 && !isAnimating()) {
-                LogUtil.d("Gowtham : Inside onDoubleTapEvent");
+
                 float sx = corrector.getValues()[MatrixEx.MSCALE_X];
                 float innerFitScale = corrector.getInnerFitScale();
                 float reversalScale = innerFitScale * doubleTapZoomOutFactor;
@@ -518,8 +527,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
      *
      * @param zoomFactor - zoomFactor. 
      * @param duration - duration.
-     * @param x - x.
-     * @param y - y.
+     * @param x - mx.
+     * @param y - my.
      */
     public void animateZoom(float zoomFactor, long duration, float x, float y) {
         animateZoom(zoomFactor, duration, x, y, null);
@@ -557,8 +566,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
      *
      * @param zoomFactor - zoomfactor.
      * @param duration - duration.
-     * @param x - x.
-     * @param y - y.
+     * @param x - mx.
+     * @param y - my.
      * @param interpolator - interpolator.
      */
     public void animateZoom(float zoomFactor, long duration, float x, float y, Integer interpolator) {
@@ -581,8 +590,8 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
      * so that the image entirely fits within the view using centerpoint coordinates.</p>
      *
      * @param duration - duration.
-     * @param x - x.
-     * @param y - y.
+     * @param x - mx.
+     * @param y - my.
      */
     public void animateZoomOutToFit(long duration, float x, float y) {
         float sx = corrector.getValues()[MatrixEx.MSCALE_X];

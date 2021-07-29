@@ -7,6 +7,7 @@ import ohos.multimodalinput.event.ManipulationEvent;
 import ohos.multimodalinput.event.MmiPoint;
 import ohos.multimodalinput.event.TouchEvent;
 import ohos.utils.PlainArray;
+import com.bogdwellers.pinchtozoom.util.PointF;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class MultiTouchListener implements TouchEventListener {
      */
     
     private List<Integer> pointerIds;
-    private PlainArray<Point> startPoints;
+    private PlainArray<PointF> startPoints;
     
     /*
      * Constructor(s)
@@ -47,7 +48,7 @@ public class MultiTouchListener implements TouchEventListener {
             case TouchEvent.PRIMARY_POINT_DOWN:
             case TouchEvent.OTHER_POINT_DOWN:
                 pointerId = touchEvent.getPointerId(actionIndex);
-                Point startPoint = new Point(touchEvent.getPointerPosition(actionIndex).getX(),
+                PointF startPoint = new PointF(touchEvent.getPointerPosition(actionIndex).getX(),
                         touchEvent.getPointerPosition(actionIndex).getY());
                 // Save the starting point
                 startPoints.put(pointerId, startPoint);
@@ -110,7 +111,7 @@ public class MultiTouchListener implements TouchEventListener {
      * @param touchNo - touchNo.
      * @return - return.
      */
-    public Point getStartPoint(int touchNo) { 
+    public PointF getStartPoint(int touchNo) {
         return startPoints.get(getId(touchNo)).get();
     }
     
@@ -120,7 +121,7 @@ public class MultiTouchListener implements TouchEventListener {
      * @param event - event.
      */
     public void updateStartPoints(TouchEvent event) {
-        Point startPoint;
+        PointF startPoint;
         Integer pointerId;
         
         for (int i = 0, n = event.getPointerCount(); i < n; i++) {
@@ -128,7 +129,7 @@ public class MultiTouchListener implements TouchEventListener {
             MmiPoint point1 = event.getPointerPosition(pointerId);
             final float eventx = point1.getX();
             final float eventy = point1.getY();
-            startPoint = new Point(eventx, eventy);
+            startPoint = new PointF(eventx, eventy);
             
             // Save the starting point
             startPoints.put(pointerId, startPoint);
@@ -234,7 +235,7 @@ public class MultiTouchListener implements TouchEventListener {
      * @param pointerA id of pointer A
      * @param pointerB id of pointer B
      */
-    public static final void midPoint(Point point, TouchEvent event, int pointerA, int pointerB) {
+    public static final void midPoint(PointF point, TouchEvent event, int pointerA, int pointerB) {
         int indexA = event.getPointerId(pointerA);
         int indexB = event.getPointerId(pointerB);
         MmiPoint point1 = event.getPointerPosition(indexA);
@@ -245,7 +246,7 @@ public class MultiTouchListener implements TouchEventListener {
         final float eventy2 = point2.getY();
         float x = eventx1 + eventx2;
         float y = eventy1 + eventy2;
-        point.modify(Math.round(x / 2f), Math.round(y / 2f));
+        point.set(Math.round(x / 2f), Math.round(y / 2f));
     }
     
     /**
@@ -255,7 +256,7 @@ public class MultiTouchListener implements TouchEventListener {
      * @param pointerA id of pointer A
      * @param pointerB id of pointer B
      * @param isPointerApivot indicates if pointer A is considered to be the pivot, 
-     *        else pointer B is. Use {@link #startedLower(Point, Point)}
+     *        else pointer B is. Use {@link #startedLower(PointF, PointF)}
      * @return angle in degrees
      */
     public static final float angle(TouchEvent event, int pointerA, int pointerB, boolean isPointerApivot) {
@@ -285,15 +286,15 @@ public class MultiTouchListener implements TouchEventListener {
     }
     
     /**
-     * <p>Convenience method to determine whether starting point A has a lower y-axis value than starting point B.
+     * <p>Convenience method to determine whether starting point A has a lower my-axis value than starting point B.
      * Useful in conjunction with {@link #angle(TouchEvent, int, int, boolean)}.</p>
      *
      * @param pointA details
      * @param pointB details
      * @return boolean
      */
-    public static final boolean startedLower(Point pointA, Point pointB) {
-        return pointA.getPointY() < pointB.getPointY();
+    public static final boolean startedLower(PointF pointA, PointF pointB) {
+        return pointA.my < pointB.my;
     }
 
     public void setPointerIds(List<Integer> pointerIds) {

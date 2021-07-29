@@ -65,7 +65,7 @@ public abstract class MatrixCorrector {
     /**
      * Returns the corrected value of the given absolute vector.
      *
-     * @param x - x.
+     * @param x - mx.
      * @return - returns.
      */
     public float correctAbsolute(float x) {

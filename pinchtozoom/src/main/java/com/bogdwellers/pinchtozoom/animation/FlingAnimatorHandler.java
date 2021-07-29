@@ -27,8 +27,8 @@ public class FlingAnimatorHandler extends AbsCorrectorAnimatorHandler {
         float[] values = getValues();
         matrix.getElements(values);
 
-        float[] animValues = {0f, 1f};
-        float dx = FlingAnimatorHandler.getAnimatedValue(v, animValues);
+
+        float dx = v;
         dx = corrector.correctAbsolute(MatrixEx.MTRANS_X, dx) - values[MatrixEx.MTRANS_X];
         float dy = FlingAnimatorHandler.getAnimatedValue(v, values);
         dy = corrector.correctAbsolute(MatrixEx.MTRANS_Y, dy) - values[MatrixEx.MTRANS_Y];
