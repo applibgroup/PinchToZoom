@@ -1,28 +1,21 @@
 package com.bogdwellers.pinchtozoom;
 
-import com.bogdwellers.pinchtozoom.util.MatrixEx;
-import com.github.chrisbanes.photoview.PhotoView;
 import ohos.agp.components.element.Element;
 import ohos.agp.utils.Matrix;
+import com.bogdwellers.pinchtozoom.util.MatrixEx;
+import com.github.chrisbanes.photoview.PhotoView;
 
 /**
- * 
- * @author Martin
+ * ImageMatrixCorrector.
+ *
+ * @author Martin - Martin.
  *
  */
-public abstract class ImageMatrixCorrector extends MatrixCorrector {
-	
-	/*
-	 * Attributes
-	 */
+public abstract class ImageMatrixCorrector extends MatrixCorrector { 
 
 	private PhotoView photoView;
 	private float scaledImageWidth;
 	private float scaledImageHeight;
-
-	/*
-	 * Overrides
-	 */
 
 	@Override
 	public void setMatrix(Matrix matrix) {
@@ -30,13 +23,10 @@ public abstract class ImageMatrixCorrector extends MatrixCorrector {
 		updateScaledImageDimensions();
 	}
 
-	/*
-	 * Class methods
-	 */
-	
 	/**
-	 * <p>Sets the <code>ImageView</code>. This also sets its inner image matrix as this corrector's matrix automatically.</p>
-	 * @param imageView
+	 * Sets the ImageView. This also sets its inner image matrix as this corrector's matrix automatically.
+	 *
+	 * @param imageView - imageView.
 	 */
 	public void setImageView(PhotoView imageView) {
 
@@ -48,22 +38,23 @@ public abstract class ImageMatrixCorrector extends MatrixCorrector {
 	}
 
 	/**
+	 * PhotoView.
 	 *
-	 * @return
+	 * @return - returns.
      */
 	public PhotoView getImageView() {
 		return photoView;
 	}
 
 	/**
-	 *
-	 * @return
+	 * getInnerFirScale.
+	 * @return - return.
      */
 	public float getInnerFitScale() {
 		Element drawable = photoView.getImageElement();
 		float widthRatio = (float) drawable.getWidth() / photoView.getWidth();
 		float heightRatio = (float) drawable.getHeight() / photoView.getHeight();
-		if(widthRatio > heightRatio) {
+		if (widthRatio > heightRatio) {
 			return 1f / widthRatio;
 		} else {
 			return 1f / heightRatio;
@@ -71,12 +62,12 @@ public abstract class ImageMatrixCorrector extends MatrixCorrector {
 	}
 	
 	/**
-	 * <p>(Re)calculates the image's current dimensions.</p>
+	 * (Re)calculates the image's current dimensions.
 	 */
 	protected void updateScaledImageDimensions() {
 		float[] values = getValues();
 		Element drawable = photoView.getImageElement();
-		if(drawable != null) {
+		if (drawable != null) {
 			scaledImageWidth = values[MatrixEx.MSCALE_X] * drawable.getWidth();
 			scaledImageHeight = values[MatrixEx.MSCALE_Y] * drawable.getHeight();
 		} else {
@@ -85,8 +76,9 @@ public abstract class ImageMatrixCorrector extends MatrixCorrector {
 	}
 
 	/**
-	 * <p>Returns the width of the scaled image.</p>
-	 * @return
+	 * Returns the width of the scaled image.
+	 *
+	 * @return - return.
      */
 	protected float getScaledImageWidth() { return scaledImageWidth; }
 

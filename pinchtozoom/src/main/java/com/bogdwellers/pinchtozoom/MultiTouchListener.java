@@ -234,7 +234,7 @@ public class MultiTouchListener implements TouchEventListener {
 		final float eventy2 = point2.getY();
 		float x = eventx1 + eventx2;
 		float y = eventy1 + eventy2;
-		point.equals(Math.round(x / 2f), Math.round(y / 2f));
+		point.modify(Math.round(x / 2f), Math.round(y / 2f));
 	}
 	
 	/**
@@ -282,4 +282,7 @@ public class MultiTouchListener implements TouchEventListener {
 		return pointA.getPointY() < pointB.getPointY();
 	}
 
+	public void setPointerIds(List<Integer> pointerIds) {
+		this.pointerIds=pointerIds;
+	}
 }

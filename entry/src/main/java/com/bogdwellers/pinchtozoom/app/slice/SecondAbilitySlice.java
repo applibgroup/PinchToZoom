@@ -6,26 +6,18 @@ import com.bogdwellers.pinchtozoom.view.ImageViewPager;
 import com.github.chrisbanes.photoview.PhotoView;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
-import ohos.agp.components.*;
-import ohos.agp.components.element.Element;
-import ohos.agp.components.element.PixelMapElement;
+import ohos.agp.components.Component;
+import ohos.agp.components.ComponentContainer;
+import ohos.agp.components.LayoutScatter;
+import ohos.agp.components.PageSliderProvider;
 import ohos.app.Context;
-import ohos.global.resource.NotExistException;
-import ohos.global.resource.Resource;
-import ohos.global.resource.WrongTypeException;
-import ohos.media.image.ImageSource;
-import ohos.media.image.PixelMap;
 import ohos.multimodalinput.event.TouchEvent;
-import ohos.utils.net.Uri;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ohos.agp.components.ComponentContainer.LayoutConfig.MATCH_PARENT;
-
-import static ohos.agp.components.ComponentContainer.LayoutConfig.MATCH_CONTENT;
-
+/**
+ * SecondAbilitySlice.
+ */
 public class SecondAbilitySlice extends AbilitySlice {
 
     public static final String TAG = SecondAbilitySlice.class.getSimpleName();
@@ -50,12 +42,12 @@ public class SecondAbilitySlice extends AbilitySlice {
 
         imageViewPagerAdapter = new ImageViewPagerAdapter(drawables);
 
-        viewPager =(ImageViewPager) findComponentById(ResourceTable.Id_pager);
+        viewPager = (ImageViewPager) findComponentById(ResourceTable.Id_pager);
         viewPager.setProvider(imageViewPagerAdapter);
         viewPager.setTouchEventListener(new Component.TouchEventListener() {
             @Override
             public boolean onTouchEvent(Component component, TouchEvent touchEvent) {
-                return viewPager.onTouchEvent(component,touchEvent);
+                return viewPager.onTouchEvent(component, touchEvent);
             }
         });
 
@@ -65,14 +57,16 @@ public class SecondAbilitySlice extends AbilitySlice {
     public void onActive() {
         super.onActive();
     }
+
     @Override
     public void onForeground(Intent intent) {
         super.onForeground(intent);
     }
 
     /**
+     * addDefaultImages.
      *
-     * @param drawables
+     * @param drawables - drawables.
      */
     private void addDefaultImages(List<Integer> drawables)  {
 
@@ -83,12 +77,7 @@ public class SecondAbilitySlice extends AbilitySlice {
     }
 
     /**
-     *
-     * @param uri
-     */
-
-    /**
-     *
+     * ImageViewPagerAdapter Class.
      */
     private static class ImageViewPagerAdapter extends PageSliderProvider {
 
@@ -102,7 +91,7 @@ public class SecondAbilitySlice extends AbilitySlice {
         public Object createPageInContainer(ComponentContainer container, int position) {
             Context context = container.getContext();
             LayoutScatter layoutInflater = LayoutScatter.getInstance(context);
-            Component view = layoutInflater.parse(ResourceTable.Layout_page_image,null,false);
+            Component view = layoutInflater.parse(ResourceTable.Layout_page_image, null, false);
             container.addComponent(view);
 
             PhotoView photoView = (PhotoView) view.findComponentById(ResourceTable.Id_image);
@@ -110,6 +99,7 @@ public class SecondAbilitySlice extends AbilitySlice {
 
 
             ImageMatrixTouchHandler imageMatrixTouchHandler = new ImageMatrixTouchHandler(context);
+
             photoView.setTouchEventListener(imageMatrixTouchHandler);
 
             return view;

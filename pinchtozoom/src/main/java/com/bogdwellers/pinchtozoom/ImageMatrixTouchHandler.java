@@ -1,14 +1,11 @@
 package com.bogdwellers.pinchtozoom;
 
-
-
 import com.bogdwellers.pinchtozoom.animation.FlingAnimatorHandler;
 import com.bogdwellers.pinchtozoom.animation.ScaleAnimatorHandler;
 import com.bogdwellers.pinchtozoom.util.MatrixEx;
 import com.bogdwellers.pinchtozoom.util.MyValueAnimator;
 import com.github.chrisbanes.photoview.LogUtil;
 import com.github.chrisbanes.photoview.PhotoView;
-
 import com.github.chrisbanes.photoview.gesture.GestureDetector;
 import ohos.agp.animation.Animator.CurveType;
 import ohos.agp.animation.AnimatorValue;
@@ -16,35 +13,68 @@ import ohos.agp.components.Component;
 import ohos.agp.utils.Matrix;
 import ohos.agp.utils.Point;
 import ohos.app.Context;
+import ohos.eventhandler.EventHandler;
+import ohos.eventhandler.EventRunner;
 import ohos.multimodalinput.event.MmiPoint;
 import ohos.multimodalinput.event.TouchEvent;
 
 
 /**
- * <p>The <code>ImageMatrixTouchHandler</code> enables pinch-zoom, pinch-rotate and dragging on an <code>ImageView</code>.
- * Registering an instance of this class to an <code>ImageView</code> is the only thing you need to do.</p>
+ * The ImageMatrixTouchHandler enables pinch-zoom, pinch-rotate and dragging on an ImageView.
+ * Registering an instance of this class to an ImageView is the only thing you need to do.
  *
- * 
  * @author Martin
  *
  */
 public class ImageMatrixTouchHandler extends MultiTouchListener {
-	
+
     public static final int NONE = 0;
     public static final int DRAG = 1;
     public static final int PINCH = 2;
-	public static final int DOUBLETAP = 3;
     public static final int MORPH = 4;
     private static final float MIN_PINCH_DIST_PIXELS = 10f;
-	public static final String TAG = ImageMatrixTouchHandler.class.getSimpleName();
-    
-    /*
-     * Attributes
-     */
+    public static final String TAG = ImageMatrixTouchHandler.class.getSimpleName();
 
 	private ImageMatrixCorrector corrector;
     private Matrix savedMatrix;
     private int mode;
+
+	public float getPinchVelocity() {
+		return pinchVelocity;
+	}
+
+	public float getDoubleTapZoomOutFactor() {
+		return doubleTapZoomOutFactor;
+	}
+
+	public long getDoubleTapZoomDuration() {
+		return doubleTapZoomDuration;
+	}
+
+	public long getFlingDuration() {
+		return flingDuration;
+	}
+
+	public long getZoomReleaseDuration() {
+		return zoomReleaseDuration;
+	}
+
+	public long getPinchVelocityWindow() {
+		return pinchVelocityWindow;
+	}
+
+	public float getDoubleTapZoomFactor() {
+		return doubleTapZoomFactor;
+	}
+
+	public float getFlingExaggeration() {
+		return flingExaggeration;
+	}
+
+	public float getZoomReleaseExaggeration() {
+		return zoomReleaseExaggeration;
+	}
+
 	private Point startMid;
 	private Point mid;
     private float startSpacing;
@@ -63,19 +93,22 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	private float flingExaggeration;
 	private float zoomReleaseExaggeration;
     private boolean updateTouchState;
+
 	private GestureDetector gestureDetector;
 	private AnimatorValue valueAnimator;
 
-    /*
-     * Constructor(s)
-     */
-    
+	/**
+	 * ImageTouchHandler.
+	 *
+ 	 * @param context - context.
+	 */
     public ImageMatrixTouchHandler(Context context) {
     	this(context, new ImageViewerCorrector());
 
     }
     
     public ImageMatrixTouchHandler(Context context, ImageMatrixCorrector corrector) {
+    	
 		this.corrector = corrector;
 		this.savedMatrix = new Matrix();
 		this.mode = NONE;
@@ -96,10 +129,12 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 		this.doubleTapZoomFactor = 2.5f;
 		this.doubleTapZoomOutFactor = 1.4f;
 		ImageGestureListener imageGestureListener = new ImageGestureListener();
-		this.gestureDetector = new com.github.chrisbanes.photoview.gesture.GestureDetector(context, imageGestureListener);
+		this.gestureDetector = new com.github.chrisbanes.photoview.gesture.GestureDetector(context, imageGestureListener,new EventHandler(EventRunner.getMainEventRunner()));
 		this.gestureDetector.setOnDoubleTapListener(imageGestureListener);
 
 	}
+
+
 
     
     /*
@@ -135,7 +170,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	 * @return
      */
 	public boolean isRotateEnabled() {
-		return rotateEnabled;
+		return this.rotateEnabled;
 	}
 
 	/**
@@ -405,7 +440,7 @@ public class ImageMatrixTouchHandler extends MultiTouchListener {
 	/**
 	 *
 	 */
-	private class ImageGestureListener extends com.github.chrisbanes.photoview.gesture.GestureDetector.SimpleOnGestureListener {
+	public class ImageGestureListener extends com.github.chrisbanes.photoview.gesture.GestureDetector.SimpleOnGestureListener {
 
 		@Override
 		public boolean onFling(TouchEvent e1, TouchEvent e2, float velocityX, float velocityY) {
