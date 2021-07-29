@@ -118,7 +118,7 @@ public class ImageViewPager extends PageSlider implements Component.TouchEventLi
 
                 return VALUES[MatrixEx.MSCALE_X] / centerInsideScale(vw, vh, dw, dh) > scaleThreshold
                         && !translationExceedsBoundary(tx, vw, sdw) && sdw > vw && pointerCount == 1;
-                // Assumes x-y scales are equal
+                // Assumes mx-my scales are equal
             }
         }
         if (v instanceof ComponentContainer) {

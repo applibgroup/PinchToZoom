@@ -83,8 +83,4 @@ public class ScaleAnimatorHandler extends AbsCorrectorAnimatorHandler {
         }
 
     }
-
-
-
-
 }
