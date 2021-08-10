@@ -18,7 +18,7 @@ ohos {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.har'])
-    implementation project(path: ':pinchtozoom')
+    implementation 'dev.applibgroup:pinchtozoom:1.0.0'
     implementation 'io.openharmony.tpc.thirdlib:PhotoView:1.1.1'
     testImplementation 'junit:junit:4.13'
     ohosTestImplementation 'com.huawei.ohos.testkit:runner:1.0.0.100'
